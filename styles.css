@@ -3,6 +3,7 @@ body {
   padding: 0;
   height: 100vh;
   font-family: "Mogra", cursive;
+  background-color: rgb(240, 240, 240);
 }
 
 /* state screen styles */
@@ -18,10 +19,11 @@ body {
   justify-content: center;
 }
 
-.start-screen > h1 {
+h1 {
   position: fixed;
   top: 10%;
-  font-size: 6rem;
+  font-size: 5.5rem;
+  text-align: center;
   color: rgb(240, 240, 240);
 }
 
@@ -40,7 +42,7 @@ body {
   }
 }
 
-#new-game {
+#new-game-button {
   animation: hoverEffect 2s infinite;
 }
 
@@ -55,6 +57,23 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 5%;
+}
+
+.select-screen > div {
+  display: flex;
+  gap: 7%;
+  width: 100%;
+  justify-content: center;
+}
+
+.game-select-button {
+  font-size: 1.8rem;
+  width: 275px;
+}
+
+.game-select-button:active {
+  transform: scale(0.99);
 }
 
 /* button styles */
@@ -66,10 +85,54 @@ button {
   font-size: 2.2rem;
   background-color: rgb(247, 247, 247);
   border: none;
-  transition: color 0.25s, background-color 0.25s;
+  transition: color 0.25s, background-color 0.25s, border 0.1s;
 }
 
 button:hover {
   color: rgb(43, 194, 232);
   background-color: rgb(255, 255, 255);
+}
+
+button:active {
+  border: 1px solid rgba(0, 0, 0, 0.375);
+}
+
+/* header styles */
+.header {
+  padding-top: 25px;
+}
+
+.header > h1 {
+  color: rgb(43, 194, 232);
+  position: static;
+  margin: 0;
+}
+
+/* game screen styles */
+.game-screen {
+  display: grid;
+  grid-template-rows: 150px 2fr 1fr;
+  height: 100vh;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  background-color: rgb(141, 141, 141);
+  gap: 3px;
+  width: 35%;
+  max-width: calc(100vh);
+  margin: auto;
+}
+
+.board > div {
+  background-color: white;
+  position: relative;
+}
+
+.board > div::before {
+  content: "";
+  display: block;
+  padding-top: 100%; /* forces 1:1 aspect ratio */
 }
