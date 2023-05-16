@@ -11,7 +11,7 @@ body {
   position: fixed;
   width: 100%;
   height: 100vh;
-  background-color: rgb(43, 194, 232);
+  background-color: rgb(44, 145, 170);
   z-index: 1;
   display: flex;
   flex-direction: column;
@@ -22,7 +22,7 @@ body {
 h1 {
   position: fixed;
   top: 10%;
-  font-size: 5.5rem;
+  font-size: max(6vw, 3.5rem);
   text-align: center;
   color: rgb(240, 240, 240);
 }
@@ -51,7 +51,7 @@ h1 {
   position: fixed;
   width: 100%;
   height: 100vh;
-  background-color: rgb(43, 194, 232);
+  background-color: rgb(44, 145, 170);
   z-index: 1;
   display: none;
   flex-direction: column;
@@ -62,9 +62,11 @@ h1 {
 
 .select-screen > div {
   display: flex;
-  gap: 7%;
+  flex-wrap: wrap;
+  gap: max(7%, 20px);
   width: 100%;
   justify-content: center;
+  margin-top: 40px;
 }
 
 .game-select-button {
@@ -83,13 +85,13 @@ button {
   font-family: "Mogra", cursive;
   border-radius: 15px;
   font-size: 2.2rem;
-  background-color: rgb(247, 247, 247);
+  background-color: rgb(240, 240, 240);
   border: none;
   transition: color 0.25s, background-color 0.25s, border 0.1s;
 }
 
 button:hover {
-  color: rgb(43, 194, 232);
+  color: rgb(44, 145, 170);
   background-color: rgb(255, 255, 255);
 }
 
@@ -103,7 +105,7 @@ button:active {
 }
 
 .header > h1 {
-  color: rgb(43, 194, 232);
+  color: rgb(44, 145, 170);
   position: static;
   margin: 0;
 }
@@ -119,20 +121,39 @@ button:active {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  background-color: rgb(141, 141, 141);
-  gap: 3px;
-  width: 35%;
+  gap: 10px;
+  width: max(320px, 30%);
   max-width: calc(100vh);
   margin: auto;
+  background-color: rgba(44, 145, 170, 0.131);
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .board > div {
-  background-color: white;
+  background-color: rgba(44, 145, 170, 0.103);
   position: relative;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: max(7vw, 4.5rem);
+  color: rgb(240, 240, 240);
 }
 
 .board > div::before {
   content: "";
   display: block;
   padding-top: 100%; /* forces 1:1 aspect ratio */
+}
+
+.settings {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#restart-button {
+  background-color: rgb(44, 145, 170);
+  color: rgb(240, 240, 240);
 }

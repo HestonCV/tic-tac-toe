@@ -21,8 +21,8 @@
     <div class="select-screen">
       <h1>Choose Opponent</h1>
       <div>
-        <button class="game-select-button">Player Vs Player</button>
-        <button class="game-select-button">Player Vs Bot</button>
+        <button class="game-select-button" id="player">Player Vs Player</button>
+        <button class="game-select-button" id="bot">Player Vs Bot</button>
       </div>
     </div>
     <div class="game-screen">
@@ -30,17 +30,19 @@
         <h1>Tic-Tac-Toe</h1>
       </div>
       <div class="board">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
+        <div class="board-square" data-id="1"></div>
+        <div class="board-square" data-id="2"></div>
+        <div class="board-square" data-id="3"></div>
+        <div class="board-square" data-id="4"></div>
+        <div class="board-square" data-id="5"></div>
+        <div class="board-square" data-id="6"></div>
+        <div class="board-square" data-id="7"></div>
+        <div class="board-square" data-id="8"></div>
+        <div class="board-square" data-id="9"></div>
       </div>
-      <div class="settings"></div>
+      <div class="settings">
+        <button id="restart-button">Restart</button>
+      </div>
     </div>
     <script src="scripts.js"></script>
   </body>
