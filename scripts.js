@@ -30,6 +30,10 @@ const gameController = (function () {
     return 0;
   }
 
+  function clearGame() {
+    playerTurn = 1;
+  }
+
   function makeMove() {
     playerTurn = playerTurn === 1 ? -1 : 1;
 
@@ -45,7 +49,7 @@ const gameController = (function () {
   }
 
   // public methods
-  return { makeMove, getPlayerTurn };
+  return { makeMove, getPlayerTurn, clearGame };
 })();
 
 // controls the state of the board and display
@@ -58,6 +62,11 @@ const boardController = (() => {
   const playerTwo = {
     symbol: "O",
     color: "rgb(43, 194, 232)",
+  };
+
+  const emptyCell = {
+    symbol: "",
+    color: "rgba(44, 145, 170, 0.103)",
   };
 
   const board = [
@@ -73,6 +82,22 @@ const boardController = (() => {
 
   function setBoardState(row, column) {
     board[row][column] = gameController.getPlayerTurn();
+  }
+
+  function clearBoard() {
+    // reset board state array
+    for (let i = 0; i < 3; i += 1) {
+      for (let j = 0; j < 3; j += 1) {
+        board[i][j] = 0;
+      }
+    }
+
+    // reset each board square to default
+    const boardSquares = document.querySelectorAll(".board-square");
+    boardSquares.forEach((boardSquare) => {
+      boardSquare.style.backgroundColor = emptyCell.color;
+      boardSquare.textContent = emptyCell.symbol;
+    });
   }
 
   function makeMove(boardSquareElement) {
@@ -107,7 +132,7 @@ const boardController = (() => {
   }
 
   // public methods
-  return { init, getBoardState };
+  return { init, getBoardState, clearBoard };
 })();
 
 // controls the state of the user interface
@@ -115,12 +140,19 @@ const UIController = (() => {
   const newGameButton = document.getElementById("new-game-button");
   const playerVsPlayerButton = document.getElementById("player");
   const playerVsBotButton = document.getElementById("bot");
+  const clearButton = document.getElementById("clear-button");
+  const restartButton = document.getElementById("restart-button");
   const startScreen = document.querySelector(".start-screen");
   const selectScreen = document.querySelector(".select-screen");
   let isOpponentBot = false;
 
   function setIsOpponentBot(isBot) {
     isOpponentBot = isBot;
+  }
+
+  // go back to main menu
+  function showStartScreen() {
+    startScreen.style.display = "flex";
   }
 
   // hides start screen and shows the opponent select screen
@@ -135,11 +167,6 @@ const UIController = (() => {
     selectScreen.style.display = "none";
   }
 
-  // resets UI to startscreen
-  function restartUI() {
-    startScreen.style.display = "flex";
-  }
-
   function announceWinner(winner) {
     // announce winner in ui here
     const winnerName = winner === 1 ? "Player One" : "Player Two";
@@ -148,19 +175,95 @@ const UIController = (() => {
 
   // adds necessary listeners
   function init() {
+    // start screen button
     newGameButton.addEventListener("click", () => showSelectScreen());
     playerVsBotButton.addEventListener("click", () => {
       setIsOpponentBot(true);
       setupGame();
     });
+
+    // select screen buttons
     playerVsPlayerButton.addEventListener("click", () => {
       setIsOpponentBot(false);
       setupGame();
     });
+
+    // game screen buttons
+    clearButton.addEventListener("click", () => {
+      confirmationModal.openConfirmation("clear");
+    });
+    restartButton.addEventListener("click", () => {
+      confirmationModal.openConfirmation("main");
+    });
   }
 
   // public methods
-  return { init, announceWinner };
+  return { init, announceWinner, showStartScreen };
+})();
+
+const confirmationModal = (function () {
+  const confirmationModal = document.querySelector(".confirmation-modal");
+  const confirmationMessage = document.getElementById("confirmation-message");
+  const yesButton = document.getElementById("yes-button");
+  const noButton = document.getElementById("no-button");
+
+  let buttonOption = "main";
+
+  function setConfirmationMessage(message) {
+    confirmationMessage.textContent = message;
+  }
+
+  function hideModal() {
+    confirmationModal.style.display = "none";
+  }
+
+  function showModal() {
+    confirmationModal.style.display = "flex";
+  }
+
+  function clear() {
+    boardController.clearBoard();
+    gameController.clearGame();
+  }
+
+  function mainMenu() {
+    boardController.clearBoard();
+    gameController.clearGame();
+    UIController.showStartScreen();
+  }
+
+  function openConfirmation(option) {
+    showModal();
+    buttonOption = option;
+    if (buttonOption === "main") {
+      setConfirmationMessage("Return To Main Menu?");
+    } else {
+      setConfirmationMessage("Clear The Game Board?");
+    }
+  }
+
+  function init() {
+    yesButton.addEventListener("click", () => {
+      if (buttonOption === "main") {
+        mainMenu();
+        hideModal();
+      } else {
+        clear();
+        hideModal();
+      }
+    });
+    noButton.addEventListener("click", () => {
+      hideModal();
+    });
+
+    confirmationModal.addEventListener("click", (event) => {
+      if (event.target === confirmationModal) {
+        hideModal();
+      }
+    });
+  }
+  return { init, openConfirmation };
 })();
 
 UIController.init();
+confirmationModal.init();

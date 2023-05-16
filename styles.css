@@ -78,6 +78,49 @@ h1 {
   transform: scale(0.99);
 }
 
+/* confirmation modal styles */
+.confirmation-modal {
+  position: fixed;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.156);
+}
+
+.confirmation-modal > div {
+  display: flex;
+  flex-direction: column;
+  gap: max(15px, 5%);
+  background-color: rgb(44, 145, 170);
+  padding: min(15%, 100px);
+  padding-top: min(4%, 75px);
+  width: max(25%, 250px);
+  height: max(20%, 220px);
+  border-radius: 20px;
+}
+
+.confirmation-modal p {
+  text-align: center;
+  margin: 0;
+  color: rgb(240, 240, 240);
+  font-size: min(9vw, 3rem);
+}
+
+.yes-no-buttons {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: max(5%, 15px);
+}
+
+.yes-no-buttons > button {
+  width: 60%;
+  height: 100px;
+}
+
 /* button styles */
 button {
   width: 250px;
@@ -113,7 +156,7 @@ button:active {
 /* game screen styles */
 .game-screen {
   display: grid;
-  grid-template-rows: 150px 2fr 1fr;
+  grid-template-rows: 170px 2fr 1fr;
   height: 100vh;
 }
 
@@ -122,7 +165,7 @@ button:active {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   gap: 10px;
-  width: max(320px, 30%);
+  width: max(350px, 30%);
   max-width: calc(100vh);
   margin: auto;
   background-color: rgba(44, 145, 170, 0.131);
@@ -151,9 +194,71 @@ button:active {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 5%;
 }
 
-#restart-button {
+#restart-button,
+#clear-button {
+  width: min(40vw, 200px);
+  height: min(10vh, 100px);
   background-color: rgb(44, 145, 170);
+  color: rgb(220, 220, 220);
+  font-size: 2rem;
+  transition: transform 0.15s;
+}
+
+#restart-button:hover,
+#clear-button:hover {
+  background-color: rgb(60, 180, 210);
   color: rgb(240, 240, 240);
+}
+
+#restart-button:active,
+#clear-button:active {
+  transform: scale(0.97);
+  border: none;
+}
+
+@media only screen and (max-width: 400px) {
+  .confirmation-modal {
+    position: fixed;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.325);
+  }
+
+  .confirmation-modal > div {
+    display: flex;
+    flex-direction: column;
+    gap: max(15px, 5%);
+    background-color: rgb(44, 145, 170);
+    padding: min(15%, 100px);
+    padding-top: min(4%, 75px);
+    width: max(25%, 250px);
+    height: max(20%, 220px);
+    border-radius: 20px;
+  }
+
+  .confirmation-modal p {
+    text-align: center;
+    margin: 0;
+    color: rgb(240, 240, 240);
+    font-size: min(9vw, 3rem);
+  }
+
+  .yes-no-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: max(5%, 15px);
+  }
+
+  .yes-no-buttons > button {
+    width: 60%;
+    height: 15vw;
+  }
 }
