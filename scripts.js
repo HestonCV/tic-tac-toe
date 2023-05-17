@@ -209,6 +209,8 @@ const boardController = (() => {
           : playerTwo.symbol;
       setBoardState(row, column);
       gameController.makeMove();
+    } else {
+      gameController.setBlock(true);
     }
   }
 
@@ -216,8 +218,11 @@ const boardController = (() => {
     const boardSquares = document.querySelectorAll(".board-square");
     boardSquares.forEach((boardSquare) => {
       boardSquare.addEventListener("click", () => {
-        let block = false;
-
+        if (boardSquare.textContent) {
+          gameController.setBlock(true);
+        } else {
+          gameController.setBlock(false);
+        }
         if (!gameController.getIsGameOver()) {
           // make player move if bot is not blocking
           if (!gameController.getBlock()) makeMove(boardSquare);
@@ -235,7 +240,7 @@ const boardController = (() => {
             setTimeout(() => {
               makeMove(botBoardSquare);
               gameController.setBlock(false);
-            }, 1000);
+            }, 500);
           }
         }
       });
@@ -243,7 +248,7 @@ const boardController = (() => {
   }
 
   // public methods
-  return { init, getBoardState, clearBoard, isBoardFull, deactivateBoard };
+  return { init, getBoardState, clearBoard, deactivateBoard, isBoardFull };
 })();
 
 // controls the state of the user interface
