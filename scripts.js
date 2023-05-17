@@ -4,6 +4,15 @@ const gameController = (function () {
   let playerTurn = 1;
   let isGameOver = false;
   let isOpponentBot = false;
+  let block = false;
+
+  function getBlock() {
+    return block;
+  }
+
+  function setBlock(choice) {
+    block = choice;
+  }
 
   function getIsOpponentBot() {
     return isOpponentBot;
@@ -105,6 +114,8 @@ const gameController = (function () {
     setIsOpponentBot,
     getIsOpponentBot,
     makeBotMove,
+    getBlock,
+    setBlock,
   };
 })();
 
@@ -205,14 +216,25 @@ const boardController = (() => {
     const boardSquares = document.querySelectorAll(".board-square");
     boardSquares.forEach((boardSquare) => {
       boardSquare.addEventListener("click", () => {
-        //send data to game object
-        console.log(gameController.getIsGameOver());
+        let block = false;
+
         if (!gameController.getIsGameOver()) {
-          makeMove(boardSquare);
-          if (gameController.getIsOpponentBot()) {
+          // make player move if bot is not blocking
+          if (!gameController.getBlock()) makeMove(boardSquare);
+
+          // if player vs bot then play bot move.
+          if (
+            gameController.getIsOpponentBot() &&
+            !gameController.getBlock() &&
+            !isBoardFull() &&
+            !gameController.getIsGameOver()
+          ) {
             const botBoardSquare = gameController.makeBotMove();
+
+            gameController.setBlock(true);
             setTimeout(() => {
               makeMove(botBoardSquare);
+              gameController.setBlock(false);
             }, 1000);
           }
         }
