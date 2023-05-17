@@ -2,6 +2,20 @@
 const gameController = (function () {
   // player 1 is -1 and player 2 is 2 for each for checking winner
   let playerTurn = 1;
+  let isGameOver = false;
+  let isOpponentBot = false;
+
+  function getIsOpponentBot() {
+    return isOpponentBot;
+  }
+
+  function setIsOpponentBot(isBot) {
+    isOpponentBot = isBot;
+  }
+
+  function getIsGameOver() {
+    return isGameOver;
+  }
 
   function checkWinner() {
     const board = boardController.getBoardState();
@@ -32,16 +46,50 @@ const gameController = (function () {
 
   function clearGame() {
     playerTurn = 1;
+    isGameOver = false;
   }
 
   function makeMove() {
     playerTurn = playerTurn === 1 ? -1 : 1;
-
-    // 1 for player 1, -1 for player 2, 0 for no winner
-    const winner = checkWinner();
-    if (winner !== 0) {
-      UIController.announceWinner(winner);
+    // if board is full, announce tie
+    if (boardController.isBoardFull()) {
+      isGameOver = true;
+      UIController.announceWinner(checkWinner());
+      boardController.deactivateBoard();
+    } else {
+      // 1 for player 1, -1 for player 2, 0 for no winner
+      const winner = checkWinner();
+      if (winner !== 0) {
+        isGameOver = true;
+        UIController.announceWinner(winner);
+        boardController.deactivateBoard();
+      }
     }
+  }
+
+  function makeBotMove() {
+    const boardSquares = document.querySelectorAll(".board-square");
+    const boardIds = [
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9],
+    ];
+    const boardState = boardController.getBoardState();
+    let randomRow = Math.floor(Math.random() * 3);
+    let randomColumn = Math.floor(Math.random() * 3);
+    while (boardState[randomRow][randomColumn] !== 0) {
+      randomRow = Math.floor(Math.random() * 3);
+      randomColumn = Math.floor(Math.random() * 3);
+    }
+    const boardId = boardIds[randomRow][randomColumn];
+
+    let chosenBoardSquare;
+    boardSquares.forEach((boardSquare) => {
+      if (parseInt(boardSquare.dataset.id, 10) === boardId) {
+        chosenBoardSquare = boardSquare;
+      }
+    });
+    return chosenBoardSquare;
   }
 
   function getPlayerTurn() {
@@ -49,7 +97,15 @@ const gameController = (function () {
   }
 
   // public methods
-  return { makeMove, getPlayerTurn, clearGame };
+  return {
+    getIsGameOver,
+    makeMove,
+    getPlayerTurn,
+    clearGame,
+    setIsOpponentBot,
+    getIsOpponentBot,
+    makeBotMove,
+  };
 })();
 
 // controls the state of the board and display
@@ -57,11 +113,13 @@ const boardController = (() => {
   const playerOne = {
     symbol: "X",
     color: "rgb(44, 145, 170)",
+    inactiveColor: "rgba(44, 145, 170, 0.5)",
   };
 
   const playerTwo = {
     symbol: "O",
     color: "rgb(43, 194, 232)",
+    inactiveColor: "rgba(43, 194, 232, 0.5)",
   };
 
   const emptyCell = {
@@ -75,6 +133,17 @@ const boardController = (() => {
     [0, 0, 0],
   ];
 
+  function isBoardFull() {
+    const board = boardController.getBoardState();
+
+    for (let i = 0; i < 3; i += 1) {
+      for (let j = 0; j < 3; j += 1) {
+        if (board[i][j] === 0) return false;
+      }
+    }
+    return true;
+  }
+
   function getBoardState() {
     const currentboard = board;
     return currentboard;
@@ -82,6 +151,17 @@ const boardController = (() => {
 
   function setBoardState(row, column) {
     board[row][column] = gameController.getPlayerTurn();
+  }
+
+  function deactivateBoard() {
+    const boardSquares = document.querySelectorAll(".board-square");
+    boardSquares.forEach((boardSquare) => {
+      if (boardSquare.textContent === playerOne.symbol) {
+        boardSquare.style.backgroundColor = playerOne.inactiveColor;
+      } else if (boardSquare.textContent === playerTwo.symbol) {
+        boardSquare.style.backgroundColor = playerTwo.inactiveColor;
+      }
+    });
   }
 
   function clearBoard() {
@@ -126,13 +206,22 @@ const boardController = (() => {
     boardSquares.forEach((boardSquare) => {
       boardSquare.addEventListener("click", () => {
         //send data to game object
-        makeMove(boardSquare);
+        console.log(gameController.getIsGameOver());
+        if (!gameController.getIsGameOver()) {
+          makeMove(boardSquare);
+          if (gameController.getIsOpponentBot()) {
+            const botBoardSquare = gameController.makeBotMove();
+            setTimeout(() => {
+              makeMove(botBoardSquare);
+            }, 1000);
+          }
+        }
       });
     });
   }
 
   // public methods
-  return { init, getBoardState, clearBoard };
+  return { init, getBoardState, clearBoard, isBoardFull, deactivateBoard };
 })();
 
 // controls the state of the user interface
@@ -144,11 +233,6 @@ const UIController = (() => {
   const restartButton = document.getElementById("restart-button");
   const startScreen = document.querySelector(".start-screen");
   const selectScreen = document.querySelector(".select-screen");
-  let isOpponentBot = false;
-
-  function setIsOpponentBot(isBot) {
-    isOpponentBot = isBot;
-  }
 
   // go back to main menu
   function showStartScreen() {
@@ -164,11 +248,14 @@ const UIController = (() => {
   // starts game
   function setupGame(isBot) {
     boardController.init();
+    confirmationModalController.init();
+    winnerModalController.init();
     selectScreen.style.display = "none";
   }
 
   function announceWinner(winner) {
     // announce winner in ui here
+    winnerModalController.openWinner(winner);
     const winnerName = winner === 1 ? "Player One" : "Player Two";
     console.log(winnerName);
   }
@@ -178,22 +265,22 @@ const UIController = (() => {
     // start screen button
     newGameButton.addEventListener("click", () => showSelectScreen());
     playerVsBotButton.addEventListener("click", () => {
-      setIsOpponentBot(true);
+      gameController.setIsOpponentBot(true);
       setupGame();
     });
 
     // select screen buttons
     playerVsPlayerButton.addEventListener("click", () => {
-      setIsOpponentBot(false);
+      gameController.setIsOpponentBot(false);
       setupGame();
     });
 
     // game screen buttons
     clearButton.addEventListener("click", () => {
-      confirmationModal.openConfirmation("clear");
+      confirmationModalController.openConfirmation("clear");
     });
     restartButton.addEventListener("click", () => {
-      confirmationModal.openConfirmation("main");
+      confirmationModalController.openConfirmation("main");
     });
   }
 
@@ -201,7 +288,7 @@ const UIController = (() => {
   return { init, announceWinner, showStartScreen };
 })();
 
-const confirmationModal = (function () {
+const confirmationModalController = (function () {
   const confirmationModal = document.querySelector(".confirmation-modal");
   const confirmationMessage = document.getElementById("confirmation-message");
   const yesButton = document.getElementById("yes-button");
@@ -265,5 +352,67 @@ const confirmationModal = (function () {
   return { init, openConfirmation };
 })();
 
+const winnerModalController = (function () {
+  const winnerModal = document.querySelector(".winner-modal");
+  const winnerMessage = document.getElementById("winner-message");
+  const playAgainButton = document.getElementById("play-again-button");
+  const mainMenuButton = document.getElementById("main-menu-button");
+  const closeButton = document.querySelector(".close-winner");
+
+  function setWinnerMessage(message) {
+    winnerMessage.textContent = message;
+  }
+
+  function hideModal() {
+    winnerModal.style.display = "none";
+  }
+
+  function showModal() {
+    winnerModal.style.display = "flex";
+  }
+
+  function clear() {
+    boardController.clearBoard();
+    gameController.clearGame();
+  }
+
+  function mainMenu() {
+    boardController.clearBoard();
+    gameController.clearGame();
+    UIController.showStartScreen();
+  }
+
+  function openWinner(winner) {
+    showModal();
+    console.log(winner);
+    if (winner === 1) {
+      setWinnerMessage("Player One Wins!");
+    } else if (winner === -1) {
+      setWinnerMessage("Player Two Wins!");
+    } else {
+      setWinnerMessage("It's a Tie!");
+    }
+  }
+
+  function init() {
+    playAgainButton.addEventListener("click", () => {
+      clear();
+      hideModal();
+    });
+    mainMenuButton.addEventListener("click", () => {
+      mainMenu();
+      hideModal();
+    });
+    closeButton.addEventListener("click", () => {
+      hideModal();
+    });
+    winnerModal.addEventListener("click", (event) => {
+      if (event.target === winnerModal) {
+        hideModal();
+      }
+    });
+  }
+  return { init, openWinner };
+})();
+
 UIController.init();
-confirmationModal.init();
